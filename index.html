@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Sitesi Fiyat Demo</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f5f5;
+      display: flex;
+      flex-direction: row;
+    }
+
+    .container-left {
+      width: 30%;
+      padding: 30px;
+      background-color: white;
+      box-sizing: border-box;
+    }
+
+    .price-item {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .price-item label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .counter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .counter button {
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+    }
+
+    .price-summary {
+      font-size: 18px;
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .price-summary p {
+      margin: 8px 0;
+    }
+
+    .discount-summary {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+
+    .container-right {
+      width: calc(70% - 40px);
+      margin: 20px;
+      background: url('arka_plan_tek_renk.webp') no-repeat center center;
+      background-size: cover;
+      padding: 20px;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .container-right img.logo {
+      display: block;
+      margin: 0 auto;
+      max-height: 80px;
+    }
+
+    .container-right img.urun-ismi {
+      display: block;
+      margin: 10px auto;
+      max-width: 50%;
+    }
+
+    .container-right img.urun-gorseli {
+      display: block;
+      margin: 10px auto;
+      width: calc(100% - 40px);
+      max-width: 70%;
+    }
+
+    .variant-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .variant-buttons img {
+      height: 60px;
+      object-fit: contain;
+    }
+
+    .container-right .tech-label {
+      text-align: center;
+      margin: 10px 0 10px;
+      font-weight: 600;
+    }
+
+    .container-right img.teknik-cizim {
+      display: block;
+      margin: 0 auto;
+      max-width: calc(70% - 40px);
+    }
+
+    .container-right img.footer-link {
+      display: block;
+      margin: 30px auto 0;
+      height: 25px;
+    }
+
+    .container-right img.geri-icon {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      height: 30px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container-left">
+    <div class="price-item">
+      <label>Animasyon Sayısı</label>
+      <div class="counter">
+        <button id="animasyon-minus" onclick="changeCount('animasyon', -1)">-</button>
+        <span id="animasyon">0</span>
+        <button id="animasyon-plus" onclick="changeCount('animasyon', 1)">+</button>
+      </div>
+    </div>
+    <div class="price-item">
+      <label>Dekupe Render Sayısı</label>
+      <div class="counter">
+        <button disabled>-</button>
+        <span id="dekupe">1</span>
+        <button disabled>+</button>
+      </div>
+    </div>
+    <div class="price-item">
+      <label>Teknik Çizim Sayısı</label>
+      <div class="counter">
+        <button id="cizim-minus" onclick="changeCount('cizim', -1)">-</button>
+        <span id="cizim">0</span>
+        <button id="cizim-plus" onclick="changeCount('cizim', 1)">+</button>
+      </div>
+    </div>
+
+<p style="text-align:center; font-size:14px; color:#666; margin-top:-10px; margin-bottom:20px;">
+  Ürün başına sayfa düzenleme + kodlama: <strong>400 ₺</strong>
+</p>
+
+    <div class="price-summary">
+      <p>Toplam Fiyat: <strong><span id="toplamFiyat">0</span> ₺</strong></p>
+      <p>KDV Dahil: <strong><span id="kdvFiyat">0</span> ₺</strong></p>
+    </div>
+
+    <div class="discount-summary">
+      <p>15 Ürün İçin: <strong><span id="ind15">0</span> ₺ (%10 indirim)</strong></p>
+      <p>30 Ürün İçin: <strong><span id="ind30">0</span> ₺ (%20 indirim)</strong></p>
+    </div>
+  </div>
+
+  <div class="container-right">
+    <img src="geri_icon.webp" class="geri-icon" alt="Geri">
+    <img src="Varlık 13.webp" class="logo" alt="Logo">
+    <img src="urunun_ismi.webp" class="urun-ismi" alt="Ürün İsmi">
+    <img src="Crea Kare Gold0115.png" class="urun-gorseli" alt="Ürün Görseli">
+
+    <div class="variant-buttons" id="variantButtons"></div>
+
+    <div class="tech-label">Teknik Çizim</div>
+    <img src="crea_kare_2d.webp" class="teknik-cizim" alt="Teknik Çizim">
+
+    <img src="websitesi_yonlendirici_metin.webp" class="footer-link" alt="Footer Link">
+  </div>
+
+  <script>
+    const fiyatlar = {
+      animasyon: 500,
+      dekupe: 500,
+      cizim: 300
+    };
+
+    const counts = {
+      animasyon: 0,
+      dekupe: 1,
+      cizim: 0
+    };
+
+    function changeCount(type, delta) {
+      if (type === 'animasyon') {
+        counts[type] = Math.min(Math.max(counts[type] + delta, 0), 8);
+        document.getElementById('animasyon-plus').style.display = counts[type] >= 8 ? 'none' : 'inline-block';
+        document.getElementById('animasyon-minus').style.display = counts[type] <= 0 ? 'none' : 'inline-block';
+      } else if (type === 'cizim') {
+        counts[type] = Math.min(Math.max(counts[type] + delta, 0), 1);
+        document.getElementById('cizim-plus').style.display = counts[type] >= 1 ? 'none' : 'inline-block';
+        document.getElementById('cizim-minus').style.display = counts[type] <= 0 ? 'none' : 'inline-block';
+      }
+
+      document.getElementById(type).textContent = counts[type];
+      updateFiyat();
+      updateButtons();
+    }
+
+   function updateFiyat() {
+  const sayfaDuzenleme = 400;
+  const toplam = counts.animasyon * fiyatlar.animasyon + counts.dekupe * fiyatlar.dekupe + counts.cizim * fiyatlar.cizim + sayfaDuzenleme;
+  const kdv = Math.round(toplam * 1.2);
+
+  // 15 ürün için
+  const ind15Net = Math.round(toplam * 15 * 0.9);
+  const ind15Kdv = Math.round(ind15Net * 1.2);
+
+  // 30 ürün için
+  const ind30Net = Math.round(toplam * 30 * 0.8);
+  const ind30Kdv = Math.round(ind30Net * 1.2);
+
+  document.getElementById('toplamFiyat').textContent = toplam;
+  document.getElementById('kdvFiyat').textContent = kdv;
+
+  document.getElementById('ind15').innerHTML = `
+    <strong>${ind15Net} ₺</strong> (Net Fiyat)<br/>
+    <strong>${ind15Kdv} ₺</strong> (KDV Dahil)
+  `;
+
+  document.getElementById('ind30').innerHTML = `
+    <strong>${ind30Net} ₺</strong> (Net Fiyat)<br/>
+    <strong>${ind30Kdv} ₺</strong> (KDV Dahil)
+  `;
+
+  const teknikCizim = document.querySelector('.teknik-cizim');
+  teknikCizim.style.display = counts.cizim === 0 ? 'none' : 'block';
+}
+
+
+
+   function updateButtons() {
+  const container = document.getElementById('variantButtons');
+  container.innerHTML = '';
+
+  const butonlar = [
+    {src: 'gold_button.webp', alt: 'Gold'},
+    {src: 'krom_button.webp', alt: 'Krom'},
+    {src: 'Matsiyah_button.webp', alt: 'Mat Siyah'},
+    {src: 'bronz_button.webp', alt: 'Bronz'}
+  ];
+
+  if (counts.animasyon >= 5) {
+    const sol = document.createElement('img');
+    sol.src = 'sol.webp';
+    sol.alt = 'Sol';
+    container.appendChild(sol);
+  }
+
+  for (let i = 0; i < counts.animasyon && i < butonlar.length; i++) {
+    const img = document.createElement('img');
+    img.src = butonlar[i].src;
+    img.alt = butonlar[i].alt;
+    container.appendChild(img);
+  }
+
+  if (counts.animasyon >= 5) {
+    const sag = document.createElement('img');
+    sag.src = 'sag.webp';
+    sag.alt = 'Sağ';
+    container.appendChild(sag);
+
+const teknikCizim = document.querySelector('.teknik-cizim');
+teknikCizim.style.display = counts.cizim === 0 ? 'none' : 'block';
+
+  }
+}
+
+    updateFiyat();
+    updateButtons();
+  </script>
+</body>
+</html>
